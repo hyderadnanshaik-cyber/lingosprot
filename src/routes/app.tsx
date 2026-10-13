@@ -74,9 +74,20 @@ function AppShell() {
           </Link>
         </div>
 
-        <div className="mt-auto space-y-2">
+        <div className="mt-auto space-y-2 pt-4 border-t-2 border-border/60">
           <DemoBadge />
           <p className="text-xs font-semibold text-muted-foreground">Signed in as {s.name}</p>
+          <p className="text-[11px] text-muted-foreground pt-1">
+            Developed by{" "}
+            <a
+              href="https://www.linkedin.com/in/shaik-adnan-hyder"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-extrabold text-primary-deep hover:underline"
+            >
+              SHAIK ADNAN HYDER
+            </a>
+          </p>
         </div>
       </aside>
 

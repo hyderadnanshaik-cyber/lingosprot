@@ -474,6 +474,19 @@ function ParentDashboard() {
           </div>
         </section>
       )}
+
+      {/* Footer attribution */}
+      <div className="pt-6 border-t border-border/60 text-center text-xs text-muted-foreground">
+        Developed by{" "}
+        <a
+          href="https://www.linkedin.com/in/shaik-adnan-hyder"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-extrabold text-primary-deep hover:underline"
+        >
+          SHAIK ADNAN HYDER
+        </a>
+      </div>
     </div>
   );
 }

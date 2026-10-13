@@ -317,17 +317,31 @@ function Landing() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="border-t-2 border-border">
+      <footer className="border-t-2 border-border bg-card/40">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm font-semibold text-muted-foreground">
           <span className="font-display text-lg font-extrabold text-primary-deep">LingoSprout</span>
           <div className="flex gap-5">
-            <Link to="/app">Learn</Link>
-            <Link to="/app/learn">Programs</Link>
-            <Link to="/app/speak">Speaking</Link>
+            <Link to="/app" className="hover:text-foreground transition-colors">Learn</Link>
+            <Link to="/app/learn" className="hover:text-foreground transition-colors">Programs</Link>
+            <Link to="/app/speak" className="hover:text-foreground transition-colors">Speaking</Link>
           </div>
-          <span className="flex items-center gap-1">
-            <BookOpen className="h-4 w-4" /> Demo build · All progress saved in your browser
-          </span>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+            <span className="flex items-center gap-1 text-xs sm:text-sm">
+              <BookOpen className="h-4 w-4" /> All progress saved in browser
+            </span>
+            <span className="text-muted-foreground/60 hidden sm:inline">•</span>
+            <span className="text-xs sm:text-sm text-foreground">
+              Developed by{" "}
+              <a
+                href="https://www.linkedin.com/in/shaik-adnan-hyder"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-extrabold text-primary-deep hover:underline"
+              >
+                SHAIK ADNAN HYDER
+              </a>
+            </span>
+          </div>
         </div>
       </footer>
     </div>
