@@ -50,26 +50,28 @@ function Node({ lesson, status, size = "lg" }: { lesson: Lesson; status: NodeSta
 export function MiniPath() {
   const s = useLearner();
   return (
-    <div className="mt-6 flex items-start gap-2 overflow-x-auto pb-2">
-      {ALL_LESSONS.slice(0, 12).map((l, i) => (
-        <div key={l.id} className="flex items-center gap-2">
-          <div className="flex flex-col items-center gap-1 w-[60px]">
-            <Node lesson={l} status={lessonStatus(l.id, s.completed)} size="sm" />
-            <span className="w-full text-center text-[10px] font-bold text-muted-foreground leading-tight line-clamp-2">
-              {l.title}
-            </span>
+    <div className="-mx-6 sm:-mx-7 overflow-x-auto">
+      <div className="flex items-start gap-2 px-6 sm:px-7 pt-4 pb-3" style={{ minWidth: "max-content" }}>
+        {ALL_LESSONS.slice(0, 12).map((l, i) => (
+          <div key={l.id} className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-col items-center gap-1.5 w-16">
+              <Node lesson={l} status={lessonStatus(l.id, s.completed)} size="sm" />
+              <span className="w-full text-center text-[10px] font-bold text-muted-foreground leading-tight line-clamp-2">
+                {l.title}
+              </span>
+            </div>
+            {i < Math.min(ALL_LESSONS.length, 12) - 1 && (
+              <span className="mb-6 h-1.5 w-5 shrink-0 rounded-full bg-border" />
+            )}
           </div>
-          {i < Math.min(ALL_LESSONS.length, 12) - 1 && (
-            <span className="mb-4 h-1.5 w-6 shrink-0 rounded-full bg-border" />
-          )}
-        </div>
-      ))}
-      {ALL_LESSONS.length > 12 && (
-        <div className="flex items-center gap-2 text-muted-foreground shrink-0 mb-4">
-          <span className="h-1.5 w-6 rounded-full bg-border" />
-          <span className="text-sm font-bold">+{ALL_LESSONS.length - 12} more</span>
-        </div>
-      )}
+        ))}
+        {ALL_LESSONS.length > 12 && (
+          <div className="flex items-center gap-2 text-muted-foreground shrink-0 mb-6">
+            <span className="h-1.5 w-5 rounded-full bg-border" />
+            <span className="text-sm font-bold whitespace-nowrap">+{ALL_LESSONS.length - 12} more</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

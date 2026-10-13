@@ -19,7 +19,7 @@ function AppShell() {
   if (path.startsWith("/app/lesson/")) return <Outlet />;
 
   return (
-    <div className="min-h-screen pb-24 md:pb-0 md:pl-60">
+    <div className="flex min-h-screen flex-col md:pl-60">
       {/* ── Desktop sidebar ───────────────────────────────────────── */}
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r-2 border-border bg-card p-5 md:flex">
         <Link to="/" className="flex items-center gap-2 group">
@@ -81,53 +81,68 @@ function AppShell() {
       </aside>
 
       {/* ── Top header ───────────────────────────────────────────── */}
-      <header className="sticky top-0 z-20 flex items-center justify-between border-b-2 border-border bg-background/95 px-3 sm:px-5 py-2.5 backdrop-blur-md">
-        <Link to="/" className="flex items-center gap-2 md:hidden min-w-0 mr-2">
-          <img src={miloLogo} alt="LingoSprout" className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg object-contain shrink-0" />
-          <span className="font-display text-lg sm:text-xl font-extrabold text-primary-deep truncate">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b-2 border-border bg-background/95 px-4 sm:px-6 py-3 backdrop-blur-md md:hidden">
+        <Link to="/" className="flex items-center gap-2.5 min-w-0 mr-3">
+          <img src={miloLogo} alt="LingoSprout" className="h-9 w-9 rounded-xl object-contain shrink-0 shadow-sm" />
+          <span className="font-display text-xl font-extrabold text-primary-deep truncate">
             Lingo<span className="text-secondary-deep">Sprout</span>
           </span>
         </Link>
-        <div className="flex items-center gap-2 sm:gap-4 shrink-0 ml-auto">
-          <Link to="/app/parent" aria-label="Parent dashboard" className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+        <div className="flex items-center gap-2 shrink-0">
+          <Link to="/app/parent" aria-label="Parent dashboard" className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
             <Settings className="h-5 w-5" />
           </Link>
-          <span className="flex items-center gap-1 font-display text-sm sm:text-base font-bold text-accent-deep bg-accent/10 px-2 py-1 rounded-full">
+          <span className="flex items-center gap-1.5 font-display text-sm font-bold text-accent-deep bg-accent/15 px-3 py-1.5 rounded-full">
             <Flame className="h-4 w-4 fill-accent" />
             {s.streak}
           </span>
-          <span className="flex items-center gap-1 font-display text-sm sm:text-base font-bold text-sun-deep bg-sun/15 px-2.5 py-1 rounded-full">
+          <span className="flex items-center gap-1.5 font-display text-sm font-bold text-sun-deep bg-sun/20 px-3 py-1.5 rounded-full">
             <Star className="h-4 w-4 fill-sun" />
-            {s.xp} <span className="hidden xs:inline">XP</span>
+            {s.xp}
+          </span>
+        </div>
+      </header>
+
+      {/* Desktop top bar (replaces mobile header on md+) */}
+      <header className="sticky top-0 z-20 hidden md:flex items-center justify-between border-b-2 border-border bg-background/95 px-6 py-3 backdrop-blur-md">
+        <div />
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="flex items-center gap-1.5 font-display text-sm font-bold text-accent-deep bg-accent/15 px-3 py-1.5 rounded-full">
+            <Flame className="h-4 w-4 fill-accent" />
+            {s.streak} day streak
+          </span>
+          <span className="flex items-center gap-1.5 font-display text-sm font-bold text-sun-deep bg-sun/20 px-3 py-1.5 rounded-full">
+            <Star className="h-4 w-4 fill-sun" />
+            {s.xp} XP
           </span>
         </div>
       </header>
 
       {/* ── Main content ─────────────────────────────────────────── */}
-      <main className="mx-auto max-w-5xl px-3 sm:px-5 py-5 sm:py-8">
+      <main className="flex-1 mx-auto w-full max-w-5xl px-4 sm:px-6 py-6 sm:py-8 pb-28 md:pb-8">
         <Outlet />
       </main>
 
       {/* ── Mobile bottom nav ────────────────────────────────────── */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t-2 border-border bg-card/95 backdrop-blur-md md:hidden safe-area-pb">
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t-2 border-border bg-card/98 backdrop-blur-md md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
         {NAV.map((n) => (
           <Link
             key={n.to}
             to={n.to}
             activeOptions={{ exact: n.to === "/app" }}
-            className={cn("flex flex-col items-center justify-center min-h-[52px] py-2 text-[11px] font-bold text-muted-foreground transition-colors hover:text-foreground")}
+            className={cn("flex flex-col items-center justify-center min-h-[60px] py-2 gap-0.5 text-xs font-bold text-muted-foreground transition-colors")}
             activeProps={{ className: "!text-primary-deep bg-primary/10" }}
           >
-            <n.icon className="h-5 w-5 mb-0.5" />
-            {n.label}
+            <n.icon className="h-6 w-6" />
+            <span className="text-[11px]">{n.label}</span>
           </Link>
         ))}
         <Link
           to="/app/parent"
-          className={cn("flex flex-col items-center justify-center min-h-[52px] py-2 text-[11px] font-bold text-muted-foreground transition-colors hover:text-foreground", path === "/app/parent" && "!text-primary-deep bg-primary/10")}
+          className={cn("flex flex-col items-center justify-center min-h-[60px] py-2 gap-0.5 text-xs font-bold text-muted-foreground transition-colors", path === "/app/parent" && "!text-primary-deep bg-primary/10")}
         >
-          <BarChart3 className="h-5 w-5 mb-0.5" />
-          Parent
+          <BarChart3 className="h-6 w-6" />
+          <span className="text-[11px]">Parent</span>
         </Link>
       </nav>
     </div>
