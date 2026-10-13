@@ -179,26 +179,26 @@ function Onboarding() {
       </div>
 
       {/* Main Container Card */}
-      <div className="w-full max-w-xl rounded-3xl border-2 border-border bg-card p-6 md:p-10 shadow-xl transition-all">
+      <div className="w-full max-w-xl rounded-3xl border-2 border-border bg-card p-4 sm:p-6 md:p-10 shadow-xl transition-all">
         {/* ── STEP 0: ABOUT THE APPLICATION ────────────────────────── */}
         {step === 0 && (
-          <div className="space-y-6 text-center">
+          <div className="space-y-4 sm:space-y-6 text-center">
             <div className="relative inline-block">
               <img
                 src={miloLogo}
                 alt="Milo"
-                className="mx-auto w-36 h-36 rounded-3xl object-contain drop-shadow-lg animate-bob"
+                className="mx-auto w-24 h-24 sm:w-36 sm:h-36 rounded-2xl sm:rounded-3xl object-contain drop-shadow-lg animate-bob"
               />
-              <span className="absolute -top-2 -right-2 grid h-9 w-9 place-items-center rounded-full bg-sun text-lg shadow-sm">
+              <span className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 grid h-7 w-7 sm:h-9 sm:w-9 place-items-center rounded-full bg-sun text-sm sm:text-lg shadow-sm">
                 ✨
               </span>
             </div>
 
-            <div className="space-y-2">
-              <h1 className="font-display text-3xl md:text-4xl font-extrabold text-foreground">
+            <div className="space-y-1 sm:space-y-2">
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground">
                 Welcome to LingoSprout!
               </h1>
-              <p className="text-base md:text-lg font-semibold text-muted-foreground max-w-md mx-auto">
+              <p className="text-xs sm:text-base md:text-lg font-semibold text-muted-foreground max-w-md mx-auto">
                 An interactive English learning adventure designed specifically for kids aged 4 to 12.
               </p>
             </div>

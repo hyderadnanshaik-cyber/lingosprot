@@ -130,30 +130,35 @@ export function FullPath() {
                 {lvl.lessons.map((l, i) => {
                   const st = lessonStatus(l.id, s.completed);
                   const colors = CHARACTER_COLORS[l.character];
+                  const offset = offsets[i % offsets.length];
                   return (
                     <div
                       key={l.id}
-                      className="relative flex items-center gap-4"
-                      style={{ transform: `translateX(${offsets[i % offsets.length]}px)` }}
+                      className="relative flex items-center gap-3 sm:gap-4 max-w-full"
+                      style={{
+                        transform: typeof window !== "undefined" && window.innerWidth < 640
+                          ? `translateX(${Math.round(offset * 0.25)}px)`
+                          : `translateX(${offset}px)`,
+                      }}
                     >
                       {/* Character appears next to the current lesson */}
                       {st === "current" && (
                         <Character
                           id={l.character}
-                          className="absolute -left-32 w-24 animate-bob hidden md:block"
+                          className="absolute -left-28 sm:-left-32 w-20 sm:w-24 animate-bob hidden md:block"
                         />
                       )}
                       <Node lesson={l} status={st} />
-                      <div className="w-40">
-                        <p className="font-display font-bold leading-tight">{l.title}</p>
-                        <p className="text-xs font-bold text-muted-foreground">
+                      <div className="w-32 sm:w-40 min-w-0">
+                        <p className="font-display font-bold leading-tight text-sm sm:text-base truncate sm:whitespace-normal">{l.title}</p>
+                        <p className="text-[11px] sm:text-xs font-bold text-muted-foreground truncate">
                           {l.skill} · +{l.xp} XP
                         </p>
                         {st === "done" && (
-                          <p className="text-xs font-bold text-secondary-deep mt-0.5">✓ Completed</p>
+                          <p className="text-[11px] sm:text-xs font-bold text-secondary-deep mt-0.5">✓ Completed</p>
                         )}
                         {st === "current" && (
-                          <p className="text-xs font-bold text-primary-deep mt-0.5">▶ Start now</p>
+                          <p className="text-[11px] sm:text-xs font-bold text-primary-deep mt-0.5">▶ Start now</p>
                         )}
                       </div>
                     </div>

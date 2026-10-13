@@ -231,12 +231,12 @@ function Speak() {
             <button onClick={prevPhrase} aria-label="Previous phrase" className="btn-press rounded-xl border-2 border-b-[4px] border-border bg-card p-2 hover:border-muted-foreground">
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <div className="flex-1 rounded-2xl bg-ivory p-5">
-              <div className="flex items-start gap-3">
-                <button onClick={() => say(phrase, 0.8)} aria-label="Hear the phrase" className="btn-press grid h-12 w-12 shrink-0 place-items-center rounded-2xl border-b-[4px] border-primary-deep bg-primary text-primary-foreground">
-                  <Volume2 className="h-5 w-5" />
+            <div className="flex-1 rounded-2xl bg-ivory p-3.5 sm:p-5">
+              <div className="flex items-start gap-2.5 sm:gap-3">
+                <button onClick={() => say(phrase, 0.8)} aria-label="Hear the phrase" className="btn-press grid h-10 w-10 sm:h-12 sm:w-12 shrink-0 place-items-center rounded-2xl border-b-[4px] border-primary-deep bg-primary text-primary-foreground">
+                  <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
-                <p className="font-display text-2xl font-bold leading-snug md:text-3xl">
+                <p className="font-display text-lg sm:text-2xl md:text-3xl font-bold leading-snug">
                   {res
                     ? res.words.map((w, i) => (
                         <span key={i} className={w.ok ? "text-secondary-deep" : "text-accent-deep underline decoration-wavy"}>
@@ -323,20 +323,20 @@ function Speak() {
                   ? "Checked with your browser's speech recognition. This shows word matches, not pronunciation accuracy."
                   : "No automatic check was available."}
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2 pt-2">
                 {audioUrl && (
-                  <ChunkyButton tone="ghost" onClick={() => new Audio(audioUrl).play()}>
-                    <Play className="h-5 w-5" /> My voice
+                  <ChunkyButton tone="ghost" size="sm" onClick={() => new Audio(audioUrl).play()}>
+                    <Play className="h-4 w-4 mr-1" /> My voice
                   </ChunkyButton>
                 )}
-                <ChunkyButton tone="ghost" onClick={() => say(phrase, 0.8)}>
-                  <Volume2 className="h-5 w-5" /> Tara's voice
+                <ChunkyButton tone="ghost" size="sm" onClick={() => say(phrase, 0.8)}>
+                  <Volume2 className="h-4 w-4 mr-1" /> Tara's voice
                 </ChunkyButton>
-                <ChunkyButton tone="ghost" onClick={start}>
-                  <RotateCcw className="h-5 w-5" /> Again
+                <ChunkyButton tone="ghost" size="sm" onClick={start}>
+                  <RotateCcw className="h-4 w-4 mr-1" /> Again
                 </ChunkyButton>
-                <ChunkyButton tone="secondary" onClick={nextPhrase} className="ml-auto">
-                  Next phrase
+                <ChunkyButton tone="secondary" size="sm" onClick={nextPhrase} className="w-full sm:w-auto sm:ml-auto">
+                  Next phrase →
                 </ChunkyButton>
               </div>
             </div>

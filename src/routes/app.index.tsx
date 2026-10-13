@@ -93,44 +93,44 @@ function Dashboard() {
     <div className="relative grid gap-6 lg:grid-cols-[1.6fr_1fr]">
       {/* ── MASCOT GUIDED TOUR MODAL ───────────────────────────────── */}
       {showTour && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-xs p-4 animate-fade-in">
-          <div className="relative w-full max-w-lg rounded-3xl border-3 border-primary/40 bg-card p-6 md:p-8 shadow-2xl animate-pop">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 backdrop-blur-xs p-3 sm:p-4 animate-fade-in overflow-y-auto">
+          <div className="relative w-full max-w-lg rounded-3xl border-3 border-primary/40 bg-card p-5 sm:p-8 shadow-2xl animate-pop max-h-[92vh] overflow-y-auto">
             <button
               onClick={handleSkipTour}
               aria-label="Close tour"
-              className="absolute top-4 right-4 rounded-full p-2 text-muted-foreground hover:bg-muted"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 rounded-full p-2 text-muted-foreground hover:bg-muted"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="h-28 w-28 rounded-full bg-linear-to-b from-primary/20 to-sky/30 border-2 border-primary/30 grid place-items-center p-2">
+            <div className="flex flex-col items-center text-center space-y-3 sm:space-y-4">
+              <div className="h-20 w-20 sm:h-28 sm:w-28 rounded-full bg-linear-to-b from-primary/20 to-sky/30 border-2 border-primary/30 grid place-items-center p-2 shrink-0">
                 <Character
                   id={TOUR_STOPS[tourStep].character as any}
-                  className="w-20 h-20 animate-bob"
+                  className="w-16 h-16 sm:w-20 sm:h-20 animate-bob"
                 />
               </div>
 
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-primary-deep">
+                <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-primary-deep">
                   Tour Stop {tourStep + 1} of {TOUR_STOPS.length}
                 </p>
-                <h2 className="font-display text-2xl md:text-3xl font-extrabold text-foreground mt-1">
+                <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground mt-1">
                   {TOUR_STOPS[tourStep].title}
                 </h2>
-                <p className="text-sm md:text-base font-semibold text-muted-foreground mt-2 leading-relaxed">
+                <p className="text-xs sm:text-sm md:text-base font-semibold text-muted-foreground mt-2 leading-relaxed">
                   {TOUR_STOPS[tourStep].text}
                 </p>
-                <div className="mt-3 rounded-2xl bg-ivory p-3 border border-border">
+                <div className="mt-3 rounded-2xl bg-ivory p-2.5 sm:p-3 border border-border">
                   <p className="text-xs font-bold text-foreground flex items-center justify-center gap-1">
-                    <Sparkles className="h-4 w-4 text-sun-deep" />
-                    {TOUR_STOPS[tourStep].highlight}
+                    <Sparkles className="h-4 w-4 text-sun-deep shrink-0" />
+                    <span>{TOUR_STOPS[tourStep].highlight}</span>
                   </p>
                 </div>
               </div>
 
               {/* Progress Dots */}
-              <div className="flex items-center gap-2 pt-2">
+              <div className="flex items-center gap-2 pt-1 sm:pt-2">
                 {TOUR_STOPS.map((_, idx) => (
                   <span
                     key={idx}
@@ -141,12 +141,12 @@ function Dashboard() {
                 ))}
               </div>
 
-              <div className="flex w-full gap-3 pt-2">
-                <ChunkyButton tone="ghost" onClick={handleSkipTour} className="flex-1">
-                  Skip Tour
+              <div className="flex w-full gap-2 sm:gap-3 pt-2">
+                <ChunkyButton tone="ghost" size="sm" onClick={handleSkipTour} className="flex-1">
+                  Skip
                 </ChunkyButton>
-                <ChunkyButton tone="primary" onClick={handleNextTour} className="flex-2">
-                  {tourStep < TOUR_STOPS.length - 1 ? "Next Tip →" : "Let's Go, " + s.name + "! 🚀"}
+                <ChunkyButton tone="primary" size="sm" onClick={handleNextTour} className="flex-2">
+                  {tourStep < TOUR_STOPS.length - 1 ? "Next Tip →" : "Let's Go! 🚀"}
                 </ChunkyButton>
               </div>
             </div>
@@ -155,28 +155,28 @@ function Dashboard() {
       )}
 
       {/* ── Continue learning card ──────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-[2rem] bg-primary p-7 text-primary-foreground md:p-9 shadow-md">
+      <section className="relative overflow-hidden rounded-[2rem] bg-primary p-5 sm:p-7 md:p-9 text-primary-foreground shadow-md">
         <div className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-white/20 text-sm">
+          <span className="grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full bg-white/20 text-xs sm:text-sm">
             🌱
           </span>
-          <p className="font-display text-lg font-bold opacity-95">
+          <p className="font-display text-base sm:text-lg font-bold opacity-95">
             Good to see you, {s.name}!
           </p>
         </div>
         {next ? (
           <>
-            <h1 className="mt-2 max-w-sm text-4xl font-extrabold leading-tight">
+            <h1 className="mt-2 max-w-sm text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight">
               Next up: {next.title}
             </h1>
-            <p className="mt-2 font-semibold opacity-90">
+            <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm md:text-base font-semibold opacity-90">
               {level?.name} · {next.exercises.length} activities · +{next.xp} XP
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-2.5 sm:gap-3 relative z-10">
               <Link
                 to="/app/lesson/$lessonId"
                 params={{ lessonId: next.id }}
-                className={`${chunky({ tone: "sun", size: "lg" })} shadow-lg`}
+                className={`${chunky({ tone: "sun", size: "md" })} shadow-lg`}
               >
                 Continue learning
               </Link>
@@ -186,17 +186,17 @@ function Dashboard() {
                     setTourStep(0);
                     setShowTour(true);
                   }}
-                  className="rounded-2xl bg-white/20 px-4 py-3 font-display text-sm font-bold backdrop-blur-xs hover:bg-white/30 transition-colors"
+                  className="rounded-2xl bg-white/20 px-3.5 py-2.5 sm:px-4 sm:py-3 font-display text-xs sm:text-sm font-bold backdrop-blur-xs hover:bg-white/30 transition-colors"
                 >
-                  <Compass className="inline h-4 w-4 mr-1.5" /> Mascot Tour
+                  <Compass className="inline h-4 w-4 mr-1" /> Tour
                 </button>
               )}
             </div>
           </>
         ) : (
           <>
-            <h1 className="mt-2 text-4xl font-extrabold">You&apos;ve finished every lesson!</h1>
-            <p className="mt-2 font-semibold opacity-80">
+            <h1 className="mt-2 text-2xl sm:text-3xl md:text-4xl font-extrabold">You&apos;ve finished every lesson!</h1>
+            <p className="mt-2 text-xs sm:text-sm md:text-base font-semibold opacity-80">
               Superstar! More advanced stories and grammar challenges are on the way.
             </p>
           </>
@@ -205,7 +205,7 @@ function Dashboard() {
           id={next?.character ?? activeMascot}
           bob
           eager
-          className="absolute -bottom-4 right-2 w-40 md:w-52 drop-shadow-md"
+          className="absolute -bottom-4 -right-2 w-28 sm:w-36 md:w-52 drop-shadow-md opacity-80 sm:opacity-100"
         />
       </section>
 
@@ -286,44 +286,42 @@ function Dashboard() {
       {/* ── Speaking studio shortcut ───────────────────────────────── */}
       <Link
         to="/app/speak"
-        className="group flex items-center gap-4 rounded-[2rem] bg-mint p-6 border border-emerald-200 hover:shadow-md transition-shadow"
+        className="group flex flex-col sm:flex-row items-center sm:items-start gap-4 rounded-[2rem] bg-mint p-5 sm:p-6 border border-emerald-200 hover:shadow-md transition-shadow"
       >
-        <Character id="tara" className="w-24 transition-transform group-hover:-rotate-3 shrink-0" />
-        <div>
-          <p className="flex items-center gap-2 font-display text-xl font-bold">
-            <Mic className="h-5 w-5" /> Speaking studio
+        <Character id="tara" className="w-20 sm:w-24 transition-transform group-hover:-rotate-3 shrink-0" />
+        <div className="text-center sm:text-left">
+          <p className="flex items-center justify-center sm:justify-start gap-2 font-display text-lg sm:text-xl font-bold">
+            <Mic className="h-5 w-5 text-secondary-deep" /> Speaking studio
           </p>
-          <p className="font-semibold text-muted-foreground">
+          <p className="font-semibold text-muted-foreground text-xs sm:text-sm mt-1">
             Read aloud with Tara and hear your voice clearly!
           </p>
-          <div className="mt-3 flex items-center gap-1 text-sm font-bold text-secondary-deep">
+          <div className="mt-2.5 flex items-center justify-center sm:justify-start gap-1 text-xs sm:text-sm font-bold text-secondary-deep">
             {s.speakingSessions} session{s.speakingSessions !== 1 ? "s" : ""} completed
           </div>
         </div>
       </Link>
 
       {/* ── Mascot & Achievements ─────────────────────────────────── */}
-      <div className="rounded-[2rem] bg-peach p-6 border border-amber-200">
+      <div className="rounded-[2rem] bg-peach p-5 sm:p-6 border border-amber-200">
         <div className="flex items-center justify-between">
-          <p className="flex items-center gap-2 font-display text-xl font-bold">
-            <Award className="h-5 w-5" /> {s.name}&apos;s Badges
+          <p className="flex items-center gap-1.5 font-display text-lg sm:text-xl font-bold">
+            <Award className="h-5 w-5 text-accent-deep" /> {s.name}&apos;s Badges
           </p>
           <Link
             to="/app/parent"
             className="text-xs font-bold text-accent-deep hover:underline"
           >
-            Manage Avatar →
+            Avatar →
           </Link>
         </div>
         {unlockedAchievements.length === 0 ? (
-          <>
-            <SpeechBubble className="mt-3 text-sm">
+          <div className="flex flex-col sm:flex-row items-center gap-3 mt-3">
+            <SpeechBubble className="text-xs sm:text-sm flex-1">
               &ldquo;Complete your first lesson, {s.name}, to earn a shiny badge!&rdquo;
             </SpeechBubble>
-            <div className="flex justify-end mt-2">
-              <Character id={activeMascot} className="w-20" />
-            </div>
-          </>
+            <Character id={activeMascot} className="w-16 sm:w-20 shrink-0" />
+          </div>
         ) : (
           <div className="mt-3 flex flex-wrap gap-2">
             {unlockedAchievements.map((a) => (

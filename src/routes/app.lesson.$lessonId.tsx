@@ -76,41 +76,41 @@ function LessonPlayer() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <header className="mx-auto flex w-full max-w-4xl items-center gap-4 px-5 py-5">
-        <Link to="/app/learn" aria-label="Exit lesson" className="text-muted-foreground hover:text-foreground"><X className="h-7 w-7" /></Link>
-        <div className="h-5 flex-1 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={Math.round(progress * 100)}>
+      <header className="mx-auto flex w-full max-w-4xl items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-5">
+        <Link to="/app/learn" aria-label="Exit lesson" className="text-muted-foreground hover:text-foreground shrink-0"><X className="h-6 w-6 sm:h-7 sm:w-7" /></Link>
+        <div className="h-4 sm:h-5 flex-1 overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={Math.round(progress * 100)}>
           <div className="h-full rounded-full bg-secondary transition-all duration-500" style={{ width: `${progress * 100}%` }} />
         </div>
-        <span className="font-display font-bold text-muted-foreground">{i + 1}/{lesson.exercises.length}</span>
+        <span className="font-display text-sm sm:text-base font-bold text-muted-foreground shrink-0">{i + 1}/{lesson.exercises.length}</span>
       </header>
 
-      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-8 px-5 py-6">
-        <div className="flex w-full items-end gap-3">
-          <Character id={lesson.character} className="w-20 md:w-24" />
-          <SpeechBubble className="mb-6 text-lg md:text-xl">
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-6 sm:gap-8 px-4 sm:px-5 py-4 sm:py-6">
+        <div className="flex w-full items-end gap-2.5 sm:gap-3">
+          <Character id={lesson.character} className="w-16 sm:w-20 md:w-24 shrink-0" />
+          <SpeechBubble className="mb-4 sm:mb-6 text-sm sm:text-lg md:text-xl flex-1">
             {showHint ? hint(ex) : `${ex.prompt}, ${s.name}!`}
           </SpeechBubble>
         </div>
-        <div key={i} className={cn("flex w-full flex-1 items-start justify-center", result === "wrong" && "animate-shake")}>
+        <div key={i} className={cn("flex w-full flex-1 items-start justify-center overflow-x-hidden", result === "wrong" && "animate-shake")}>
           <ExerciseView ex={ex} answer={answer} setAnswer={(a) => { if (result === "none") setAnswer(a); }} locked={result !== "none"} />
         </div>
       </main>
 
-      <footer className={cn("border-t-2 transition-colors", result === "right" ? "border-secondary bg-secondary/20" : result === "wrong" ? "border-accent bg-accent/15" : "border-border bg-card")}>
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-5 py-5">
+      <footer className={cn("border-t-2 transition-colors sticky bottom-0 z-10", result === "right" ? "border-secondary bg-secondary/20" : result === "wrong" ? "border-accent bg-accent/15" : "border-border bg-card")}>
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 sm:px-5 py-3 sm:py-5">
           {result === "none" && <>
-            <ChunkyButton tone="ghost" onClick={() => setShowHint(true)} disabled={showHint}><Lightbulb className="h-5 w-5" /> Hint</ChunkyButton>
-            <ChunkyButton tone="secondary" size="lg" onClick={check} disabled={!answer || ex.type === "read-aloud"}>Check</ChunkyButton>
+            <ChunkyButton tone="ghost" size="sm" onClick={() => setShowHint(true)} disabled={showHint}><Lightbulb className="h-4 w-4 mr-1 sm:h-5 sm:w-5" /> Hint</ChunkyButton>
+            <ChunkyButton tone="secondary" size="md" onClick={check} disabled={!answer || ex.type === "read-aloud"}>Check</ChunkyButton>
           </>}
           {result === "right" && <>
-            <p className="font-display text-2xl font-extrabold text-secondary-deep">{PRAISE[i % PRAISE.length]}</p>
-            <ChunkyButton tone="secondary" size="lg" onClick={next} autoFocus>Continue</ChunkyButton>
+            <p className="font-display text-lg sm:text-2xl font-extrabold text-secondary-deep">{PRAISE[i % PRAISE.length]}</p>
+            <ChunkyButton tone="secondary" size="md" onClick={next} autoFocus>Continue →</ChunkyButton>
           </>}
           {result === "wrong" && <>
-            <p className="font-display text-xl font-bold text-accent-deep">Not quite — the answer is “{expected(ex)}”.</p>
+            <p className="font-display text-sm sm:text-xl font-bold text-accent-deep">Not quite — the answer is “{expected(ex)}”.</p>
             <div className="flex gap-2">
-              <ChunkyButton tone="ghost" onClick={retry}><RotateCcw className="h-5 w-5" /> Try again</ChunkyButton>
-              <ChunkyButton tone="accent" onClick={next}>Skip</ChunkyButton>
+              <ChunkyButton tone="ghost" size="sm" onClick={retry}><RotateCcw className="h-4 w-4 mr-1 sm:h-5 sm:w-5" /> Try again</ChunkyButton>
+              <ChunkyButton tone="accent" size="sm" onClick={next}>Skip</ChunkyButton>
             </div>
           </>}
         </div>
@@ -121,20 +121,20 @@ function LessonPlayer() {
 
 function Complete({ xp, mistakes, title, childName, onHome }: { xp: number; mistakes: number; title: string; childName: string; onHome: () => void }) {
   return (
-    <div className="relative grid min-h-screen place-items-center overflow-hidden bg-ivory px-5">
+    <div className="relative grid min-h-screen place-items-center overflow-hidden bg-ivory px-4 py-8">
       {Array.from({ length: 28 }).map((_, k) => (
         <span key={k} className={cn("pointer-events-none absolute top-0 h-3 w-2 rounded-sm", ["bg-primary", "bg-accent", "bg-sun", "bg-secondary"][k % 4])}
           style={{ left: `${(k * 37) % 100}%`, animation: `confetti ${2.5 + (k % 5) * 0.4}s ${(k % 7) * 0.15}s ease-in forwards` }} />
       ))}
-      <div className="flex flex-col items-center text-center">
-        <Character id="pip" bob eager className="w-48 animate-pop" />
-        <h1 className="mt-4 text-5xl font-extrabold">Awesome job, {childName}!</h1>
-        <p className="mt-2 text-lg font-semibold text-muted-foreground">{title} Complete!</p>
-        <div className="mt-6 flex gap-4">
-          <div className="rounded-2xl border-2 border-sun-deep bg-sun px-6 py-4"><p className="text-sm font-bold">XP earned</p><p className="flex items-center gap-1 font-display text-3xl font-extrabold"><Star className="h-6 w-6 fill-current" />{xp}</p></div>
-          <div className="rounded-2xl border-2 border-secondary-deep bg-secondary px-6 py-4 text-secondary-foreground"><p className="text-sm font-bold">Accuracy</p><p className="font-display text-3xl font-extrabold">{mistakes === 0 ? "Perfect" : `${mistakes} slip${mistakes > 1 ? "s" : ""}`}</p></div>
+      <div className="flex flex-col items-center text-center max-w-sm sm:max-w-md">
+        <Character id="pip" bob eager className="w-36 sm:w-48 animate-pop" />
+        <h1 className="mt-4 text-3xl sm:text-5xl font-extrabold">Awesome job, {childName}!</h1>
+        <p className="mt-2 text-sm sm:text-lg font-semibold text-muted-foreground">{title} Complete!</p>
+        <div className="mt-6 flex gap-3 sm:gap-4">
+          <div className="rounded-2xl border-2 border-sun-deep bg-sun px-4 sm:px-6 py-3 sm:py-4"><p className="text-xs sm:text-sm font-bold">XP earned</p><p className="flex items-center justify-center gap-1 font-display text-2xl sm:text-3xl font-extrabold"><Star className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />{xp}</p></div>
+          <div className="rounded-2xl border-2 border-secondary-deep bg-secondary px-4 sm:px-6 py-3 sm:py-4 text-secondary-foreground"><p className="text-xs sm:text-sm font-bold">Accuracy</p><p className="font-display text-2xl sm:text-3xl font-extrabold">{mistakes === 0 ? "Perfect" : `${mistakes} slip${mistakes > 1 ? "s" : ""}`}</p></div>
         </div>
-        <ChunkyButton size="lg" className="mt-8" onClick={onHome}>Back to my adventure</ChunkyButton>
+        <ChunkyButton size="lg" className="mt-6 sm:mt-8 w-full sm:w-auto" onClick={onHome}>Back to adventure</ChunkyButton>
       </div>
     </div>
   );

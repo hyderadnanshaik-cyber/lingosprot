@@ -109,12 +109,12 @@ function ParentDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b-2 border-border">
+      <div className="flex gap-2 border-b-2 border-border overflow-x-auto pb-1 scrollbar-none">
         {(["overview", "profile", "settings"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-5 py-3 font-display font-bold capitalize transition-colors text-base ${
+            className={`px-3.5 sm:px-5 py-2.5 sm:py-3 font-display font-bold capitalize transition-colors text-sm sm:text-base whitespace-nowrap shrink-0 ${
               tab === t
                 ? "border-b-3 border-primary text-primary-deep"
                 : "text-muted-foreground hover:text-foreground"

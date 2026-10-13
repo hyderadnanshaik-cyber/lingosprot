@@ -96,7 +96,7 @@ function Choices({
   return (
     <div
       className={cn(
-        "grid w-full max-w-xl gap-3",
+        "grid w-full max-w-xl gap-2.5 sm:gap-3",
         options.length === 2 && "grid-cols-2",
         options.length === 4 && "grid-cols-2 sm:grid-cols-4",
         options.length === 3 && "grid-cols-1 sm:grid-cols-3",
@@ -112,13 +112,13 @@ function Choices({
             say(o);
           }}
           className={cn(
-            "btn-press relative rounded-2xl border-2 border-b-[5px] bg-card px-4 py-5 font-display font-bold transition-colors",
-            big ? "text-4xl" : "text-2xl",
+            "btn-press relative rounded-2xl border-2 border-b-[5px] bg-card px-3 py-3.5 sm:px-4 sm:py-5 font-display font-bold transition-colors min-h-[56px]",
+            big ? "text-2xl sm:text-4xl" : "text-lg sm:text-2xl",
             answer === o ? "border-primary bg-primary/10 text-primary-deep" : "border-border hover:border-muted-foreground",
           )}
         >
-          <span className="absolute left-3 top-2 text-xs text-muted-foreground">{i + 1}</span>
-          {o}
+          <span className="absolute left-2.5 top-1.5 sm:left-3 sm:top-2 text-[10px] sm:text-xs text-muted-foreground">{i + 1}</span>
+          <span className="break-words">{o}</span>
         </button>
       ))}
     </div>
@@ -150,32 +150,32 @@ function Tiles({
     setAnswer(next.map((i) => pieces[i]).join(joiner));
   };
   return (
-    <div className="flex w-full max-w-2xl flex-col items-center gap-6">
+    <div className="flex w-full max-w-2xl flex-col items-center gap-4 sm:gap-6">
       {/* Placed tiles zone */}
-      <div className="flex min-h-20 w-full flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 px-4 py-3">
+      <div className="flex min-h-16 sm:min-h-20 w-full flex-wrap items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 px-3 py-2.5 sm:px-4 sm:py-3">
         {picked.length === 0 && (
-          <span className="text-sm font-semibold text-muted-foreground">Tap tiles below to build your answer</span>
+          <span className="text-xs sm:text-sm font-semibold text-muted-foreground">Tap tiles below to build your answer</span>
         )}
         {picked.map((i) => (
           <button
             key={i}
             disabled={locked}
             onClick={() => update(picked.filter((x) => x !== i))}
-            className="btn-press animate-pop rounded-2xl border-2 border-b-[5px] border-primary bg-primary/10 px-4 py-3 font-display text-2xl font-bold"
+            className="btn-press animate-pop rounded-2xl border-2 border-b-[5px] border-primary bg-primary/10 px-3 py-2 sm:px-4 sm:py-3 font-display text-lg sm:text-2xl font-bold"
           >
             {pieces[i]}
           </button>
         ))}
       </div>
       {/* Available tiles */}
-      <div className="flex flex-wrap justify-center gap-2">
+      <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
         {pool.map(({ p, i }) => (
           <button
             key={i}
             disabled={locked || picked.includes(i)}
             onClick={() => update([...picked, i])}
             className={cn(
-              "btn-press rounded-2xl border-2 border-b-[5px] border-border bg-card px-4 py-3 font-display text-2xl font-bold",
+              "btn-press rounded-2xl border-2 border-b-[5px] border-border bg-card px-3 py-2 sm:px-4 sm:py-3 font-display text-lg sm:text-2xl font-bold",
               picked.includes(i) && "opacity-25",
             )}
           >

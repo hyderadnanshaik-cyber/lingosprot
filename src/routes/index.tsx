@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, Mic, Map, ShieldCheck, Volume2, Star, Flame, Zap } from "lucide-react";
+import { BookOpen, Mic, Map, ShieldCheck, Volume2, Star, Flame, Zap, Menu, X } from "lucide-react";
+import { useState } from "react";
 import hero from "@/assets/hero-meadow.jpg";
 import { Character, CHARACTERS, CHARACTER_COLORS, miloLogo } from "@/components/characters";
 import { chunky } from "@/components/ui-kit";
@@ -75,96 +76,142 @@ const FEATURES = [
 ];
 
 function Landing() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen">
       {/* ── Header ──────────────────────────────────────────────────────── */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-        <Link to="/" className="flex items-center gap-2 group">
-          <img
-            src={miloLogo}
-            alt="LingoSprout Logo"
-            className="h-12 w-12 rounded-xl object-contain shadow-sm group-hover:scale-105 transition-transform"
-          />
-          <span className="font-display text-2xl font-extrabold text-primary-deep">
-            Lingo<span className="text-secondary-deep">Sprout</span>
-          </span>
-        </Link>
-        <nav className="flex items-center gap-3">
-          <Link to="/app/parent" className="font-display text-sm font-bold text-muted-foreground hover:text-foreground">
-            Parent View
+      <header className="sticky top-0 z-30 border-b border-border/40 bg-background/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+          <Link to="/" className="flex items-center gap-2 group shrink-0">
+            <img
+              src={miloLogo}
+              alt="LingoSprout Logo"
+              className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl object-contain shadow-xs group-hover:scale-105 transition-transform"
+            />
+            <span className="font-display text-xl sm:text-2xl font-extrabold text-primary-deep tracking-tight">
+              Lingo<span className="text-secondary-deep">Sprout</span>
+            </span>
           </Link>
-          <Link to="/onboarding" className={chunky({ tone: "ghost", size: "sm" })}>
-            Create Profile
-          </Link>
-          <Link to="/app" className={chunky({ tone: "primary", size: "sm" })}>
-            Start Learning
-          </Link>
-        </nav>
+
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-3">
+            <Link to="/app/parent" className="font-display text-sm font-bold text-muted-foreground hover:text-foreground px-2 py-1">
+              Parent View
+            </Link>
+            <Link to="/onboarding" className={chunky({ tone: "ghost", size: "sm" })}>
+              Create Profile
+            </Link>
+            <Link to="/app" className={chunky({ tone: "primary", size: "sm" })}>
+              Start Learning
+            </Link>
+          </nav>
+
+          {/* Mobile Actions & Menu Toggle */}
+          <div className="flex items-center gap-2 md:hidden">
+            <Link to="/app" className={chunky({ tone: "primary", size: "sm" })}>
+              Start
+            </Link>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-foreground rounded-xl border border-border hover:bg-muted"
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="border-t border-border bg-card px-4 py-4 md:hidden animate-fade-in shadow-lg">
+            <div className="flex flex-col gap-2.5">
+              <Link
+                to="/app"
+                onClick={() => setMobileMenuOpen(false)}
+                className={chunky({ tone: "primary", size: "md" })}
+              >
+                Start Learning Now
+              </Link>
+              <Link
+                to="/onboarding"
+                onClick={() => setMobileMenuOpen(false)}
+                className={chunky({ tone: "ghost", size: "md" })}
+              >
+                Create Child Profile
+              </Link>
+              <Link
+                to="/app/parent"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center rounded-xl p-3 font-display text-sm font-bold text-muted-foreground hover:bg-muted"
+              >
+                Parent Dashboard &amp; Settings
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="relative mx-auto max-w-6xl px-5">
+      <section className="relative mx-auto max-w-6xl px-4 sm:px-5 pt-4 sm:pt-6">
         <div className="relative overflow-hidden rounded-[2rem] border-2 border-border">
           <img
             src={hero}
             alt="A path of alphabet stepping stones winding through a meadow to a tree-house library"
             width={1600}
             height={912}
-            className="h-[560px] w-full object-cover md:h-[620px]"
+            className="h-[460px] sm:h-[540px] md:h-[620px] w-full object-cover"
           />
-          <div className="absolute inset-0 flex flex-col justify-start bg-gradient-to-r from-background/80 via-background/40 to-transparent p-7 md:p-14">
-            <h1 className="max-w-xl text-5xl font-extrabold leading-[0.95] md:text-7xl">
+          <div className="absolute inset-0 flex flex-col justify-start bg-gradient-to-r from-background/95 via-background/70 sm:via-background/40 to-transparent p-5 sm:p-8 md:p-14">
+            <h1 className="max-w-xl text-3xl sm:text-5xl md:text-7xl font-extrabold leading-[1.05] sm:leading-[0.95]">
               Little Steps.<br />
               <span className="text-primary-deep">Big English</span> Confidence.
             </h1>
-            <p className="mt-4 max-w-md text-lg font-semibold text-muted-foreground">
+            <p className="mt-3 sm:mt-4 max-w-md text-sm sm:text-base md:text-lg font-semibold text-muted-foreground">
               Short, playful lessons in sounds, words, reading and speaking — with friendly characters cheering every step.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/onboarding" className={chunky({ tone: "accent", size: "lg" })}>
+            <div className="mt-5 sm:mt-6 flex flex-wrap gap-2.5 sm:gap-3">
+              <Link to="/onboarding" className={chunky({ tone: "accent", size: "md" })}>
                 Start Learning Free
               </Link>
-              <Link to="/app/learn" className={chunky({ tone: "ghost", size: "lg" })}>
+              <Link to="/app/learn" className={chunky({ tone: "ghost", size: "md" })}>
                 Explore Programs
               </Link>
             </div>
           </div>
-          <Character id="pip" eager bob className="absolute bottom-6 left-[42%] hidden w-40 md:block" />
+          <Character id="pip" eager bob className="absolute bottom-6 left-[42%] hidden md:block w-40" />
         </div>
       </section>
 
       {/* ── Stats bar ───────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-5 py-8">
-        <div className="flex flex-wrap items-center justify-center gap-8 rounded-3xl border-2 border-border bg-card py-6">
-          <div className="flex items-center gap-2 text-center">
-            <Star className="h-6 w-6 text-sun-deep fill-sun" />
+      <section className="mx-auto max-w-6xl px-4 sm:px-5 py-6 sm:py-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 rounded-3xl border-2 border-border bg-card p-4 sm:p-6 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-3 p-2">
+            <Star className="h-6 w-6 text-sun-deep fill-sun shrink-0" />
             <div>
-              <p className="font-display text-2xl font-extrabold">12 Levels</p>
-              <p className="text-sm font-semibold text-muted-foreground">comprehensive curriculum</p>
+              <p className="font-display text-xl sm:text-2xl font-extrabold">12 Levels</p>
+              <p className="text-xs sm:text-sm font-semibold text-muted-foreground">curriculum</p>
             </div>
           </div>
-          <div className="h-8 w-px bg-border hidden sm:block" />
-          <div className="flex items-center gap-2 text-center">
-            <Flame className="h-6 w-6 text-accent fill-accent" />
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-3 p-2">
+            <Flame className="h-6 w-6 text-accent fill-accent shrink-0" />
             <div>
-              <p className="font-display text-2xl font-extrabold">40+ Lessons</p>
-              <p className="text-sm font-semibold text-muted-foreground">sounds to poetry &amp; syntax</p>
+              <p className="font-display text-xl sm:text-2xl font-extrabold">40+ Lessons</p>
+              <p className="text-xs sm:text-sm font-semibold text-muted-foreground">phonics &amp; poems</p>
             </div>
           </div>
-          <div className="h-8 w-px bg-border hidden sm:block" />
-          <div className="flex items-center gap-2 text-center">
-            <Zap className="h-6 w-6 text-primary fill-primary" />
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-3 p-2">
+            <Zap className="h-6 w-6 text-primary fill-primary shrink-0" />
             <div>
-              <p className="font-display text-2xl font-extrabold">11 Exercise Types</p>
-              <p className="text-sm font-semibold text-muted-foreground">poems, paragraphs &amp; grammar</p>
+              <p className="font-display text-xl sm:text-2xl font-extrabold">11 Types</p>
+              <p className="text-xs sm:text-sm font-semibold text-muted-foreground">fun activities</p>
             </div>
           </div>
-          <div className="h-8 w-px bg-border hidden sm:block" />
-          <div className="flex items-center gap-2 text-center">
-            <Mic className="h-6 w-6 text-secondary fill-secondary" />
+          <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-3 p-2">
+            <Mic className="h-6 w-6 text-secondary fill-secondary shrink-0" />
             <div>
-              <p className="font-display text-2xl font-extrabold">Speaking Studio</p>
-              <p className="text-sm font-semibold text-muted-foreground">real voice practice</p>
+              <p className="font-display text-xl sm:text-2xl font-extrabold">Voice Studio</p>
+              <p className="text-xs sm:text-sm font-semibold text-muted-foreground">speaking coach</p>
             </div>
           </div>
         </div>
