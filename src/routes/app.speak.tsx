@@ -1,9 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Mic, MicOff, Play, RotateCcw, Square, Volume2, ChevronLeft, ChevronRight, Sparkles, Star } from "lucide-react";
+import {
+  Loader2,
+  Mic,
+  MicOff,
+  Play,
+  RotateCcw,
+  Square,
+  Volume2,
+  ChevronLeft,
+  ChevronRight,
+  Star,
+  CheckCircle2,
+  XCircle,
+  HelpCircle,
+  AlertCircle,
+} from "lucide-react";
 import { Character, SpeechBubble } from "@/components/characters";
-import { ChunkyButton, DemoBadge } from "@/components/ui-kit";
-import { compareSpeech, getRecognizer, say } from "@/lib/speech";
+import { ChunkyButton } from "@/components/ui-kit";
+import { compareSpeech, getRecognizer, say, type SpeechComparison } from "@/lib/speech";
 import { learner, useLearner } from "@/lib/learner-store";
 import { cn } from "@/lib/utils";
 
@@ -97,68 +112,120 @@ function Speak() {
   const [setIdx, setSetIdx] = useState(0);
   const [phraseIdx, setPhraseIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>("idle");
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [res, setRes] = useState<ReturnType<typeof compareSpeech> | null>(null);
-  const [heardVia, setHeardVia] = useState<"recognition" | "estimate">("recognition");
-  const recRef = useRef<MediaRecorder | null>(null);
-  const transcript = useRef("");
-  const recog = useRef<ReturnType<typeof getRecognizer>>(null);
+  const [liveTranscript, setLiveTranscript] = useState("");
+  const [res, setRes] = useState<SpeechComparison | null>(null);
+  const [noWordsHeard, setNoWordsHeard] = useState(false);
+
+  const transcriptRef = useRef("");
+  const recogRef = useRef<ReturnType<typeof getRecognizer>>(null);
+  const finishTimeoutRef = useRef<number | null>(null);
 
   const currentSet = PHRASE_SETS[setIdx];
   const phrase = currentSet.phrases[phraseIdx].replace("...", s.name);
 
-  useEffect(() => () => { if (audioUrl) URL.revokeObjectURL(audioUrl); }, [audioUrl]);
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (finishTimeoutRef.current) window.clearTimeout(finishTimeoutRef.current);
+      try { recogRef.current?.abort(); } catch {}
+    };
+  }, []);
 
-  async function start() {
+  function start() {
     setRes(null);
-    setAudioUrl(null);
-    transcript.current = "";
-    if (!navigator.mediaDevices?.getUserMedia) { setPhase("error"); return; }
-    setPhase("permission");
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mr = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-      mr.ondataavailable = (e) => chunks.push(e.data);
-      mr.onstop = () => {
-        stream.getTracks().forEach((t) => t.stop());
-        setAudioUrl(URL.createObjectURL(new Blob(chunks, { type: mr.mimeType })));
-        setPhase("processing");
-        setTimeout(() => {
-          const heard = transcript.current;
-          if (heard) { setHeardVia("recognition"); setRes(compareSpeech(phrase, heard)); }
-          else { setHeardVia("estimate"); setRes(null); }
-          setPhase("result");
-          learner.speakingDone();
-        }, 800);
-      };
-      recRef.current = mr;
-      mr.start();
-      const r = getRecognizer();
-      if (r) {
-        r.onresult = (e: unknown) => {
-          const event = e as { results: { [k: number]: { [k: number]: { transcript: string } } } };
-          transcript.current = event.results[0][0].transcript;
-        };
-        r.onerror = () => {};
-        try { r.start(); } catch { /* ignore */ }
-        recog.current = r;
-      }
+    setNoWordsHeard(false);
+    setLiveTranscript("");
+    transcriptRef.current = "";
+
+    const r = getRecognizer();
+    if (!r) {
+      setPhase("error");
+      return;
+    }
+
+    r.onstart = () => {
       setPhase("recording");
-    } catch (e: unknown) {
-      const err = e as { name?: string };
-      setPhase(err?.name === "NotAllowedError" ? "denied" : "error");
+    };
+
+    r.onresult = (e: any) => {
+      let full = "";
+      for (let i = 0; i < e.results.length; i++) {
+        full += e.results[i][0].transcript + " ";
+      }
+      const trimmed = full.trim();
+      transcriptRef.current = trimmed;
+      setLiveTranscript(trimmed);
+    };
+
+    r.onerror = (e: any) => {
+      console.warn("Speech recognition notice:", e?.error);
+      if (e?.error === "not-allowed") {
+        setPhase("denied");
+      }
+    };
+
+    r.onend = () => {
+      // If we were recording and speech recognition ended, process result
+      if (phase === "recording") {
+        finalizeEvaluation();
+      }
+    };
+
+    recogRef.current = r;
+    setPhase("permission");
+
+    try {
+      r.start();
+    } catch (err) {
+      console.error("Recognizer start error:", err);
+      setPhase("error");
     }
   }
 
-  function stop() { recog.current?.stop(); recRef.current?.stop(); }
+  function stop() {
+    setPhase("processing");
+    try {
+      recogRef.current?.stop();
+    } catch {}
+
+    // Allow a short window for the final speech-to-text chunk to arrive
+    finishTimeoutRef.current = window.setTimeout(() => {
+      finalizeEvaluation();
+    }, 600);
+  }
+
+  function finalizeEvaluation() {
+    if (finishTimeoutRef.current) {
+      window.clearTimeout(finishTimeoutRef.current);
+      finishTimeoutRef.current = null;
+    }
+
+    const heard = transcriptRef.current.trim();
+    if (!heard) {
+      setNoWordsHeard(true);
+      setRes(null);
+      setPhase("result");
+      return;
+    }
+
+    const comparison = compareSpeech(phrase, heard);
+    setRes(comparison);
+    setNoWordsHeard(false);
+    setPhase("result");
+
+    // Award XP if effort was made
+    if (comparison.score >= 50) {
+      learner.speakingDone();
+    }
+  }
 
   function nextPhrase() {
     const next = (phraseIdx + 1) % currentSet.phrases.length;
     setPhraseIdx(next);
     setPhase("idle");
     setRes(null);
-    setAudioUrl(null);
+    setNoWordsHeard(false);
+    setLiveTranscript("");
   }
 
   function prevPhrase() {
@@ -166,7 +233,8 @@ function Speak() {
     setPhraseIdx(prev);
     setPhase("idle");
     setRes(null);
-    setAudioUrl(null);
+    setNoWordsHeard(false);
+    setLiveTranscript("");
   }
 
   function changeCategory(idx: number) {
@@ -174,15 +242,18 @@ function Speak() {
     setPhraseIdx(0);
     setPhase("idle");
     setRes(null);
-    setAudioUrl(null);
+    setNoWordsHeard(false);
+    setLiveTranscript("");
   }
 
   return (
     <div className="grid gap-4 sm:gap-6">
-      {/* Page Title & Category Bar */}
+      {/* Page Title & Category Selector */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold">Speaking Studio</h1>
-        <p className="text-xs sm:text-sm font-semibold text-muted-foreground mt-0.5">Read aloud with Tara and hear your voice!</p>
+        <p className="text-xs sm:text-sm font-semibold text-muted-foreground mt-0.5">
+          Read aloud with Tara — see what you got right and where to improve!
+        </p>
       </div>
 
       {/* Category selector */}
@@ -211,27 +282,33 @@ function Speak() {
         <div className="flex-1 min-w-0">
           <p className="font-display text-xs sm:text-sm font-bold text-foreground leading-snug">
             {phase === "recording"
-              ? `I'm listening, ${s.name}… take your time! 🎤`
+              ? `Listening to you, ${s.name}… speak clearly! 🎤`
               : phase === "result"
-              ? `Super reading, ${s.name}! Listen back! 🌟`
+              ? res && res.score >= 80
+                ? `Super reading, ${s.name}! Every word was clear! 🌟`
+                : res && res.score >= 50
+                ? `Nice try, ${s.name}! Let's check the words below! 👏`
+                : `Keep going, ${s.name}! Practice makes perfect! 🐢`
               : phase === "permission"
-              ? "Please allow microphone access!"
-              : `Ready, ${s.name}? Tap the listen icon or start recording! 🐢`}
+              ? "Starting microphone…"
+              : `Tap the red mic to read, or tap the speaker to hear Tara! 🐢`}
           </p>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         {/* ── Desktop Tara card (lg+ only) ─────────────────────────── */}
-        <section className="relative hidden lg:flex flex-col items-center justify-end overflow-hidden rounded-[2rem] bg-mint p-6 pt-10 min-h-[320px]">
+        <section className="relative hidden lg:flex flex-col items-center justify-end overflow-hidden rounded-[2rem] bg-mint p-6 pt-10 min-h-[340px]">
           <SpeechBubble className="mb-4 max-w-xs text-center">
             {phase === "recording"
               ? `I'm listening, ${s.name}… take your time! 🎤`
               : phase === "result"
-              ? `Super reading, ${s.name}! Listen back! 🌟`
-              : phase === "permission"
-              ? "Please allow the microphone!"
-              : `Ready, ${s.name}? Hear me first, then your turn! 🐢`}
+              ? res && res.score >= 80
+                ? `Wonderful reading, ${s.name}! 🌟`
+                : res && res.score >= 50
+                ? `Good effort, ${s.name}! Check the words below! 👏`
+                : `Let's practice the tricky words together! 🐢`
+              : `Ready, ${s.name}? Hear me first, then read aloud! 🐢`}
           </SpeechBubble>
           <Character id="tara" eager bob={phase === "recording"} className="w-48 md:w-56" />
         </section>
@@ -247,7 +324,7 @@ function Speak() {
             </span>
           </div>
 
-          {/* Phrase card with Chevrons */}
+          {/* Phrase card with Chevrons and Word-by-Word Analysis */}
           <div className="mt-4 flex items-center gap-2 sm:gap-3">
             <button
               onClick={prevPhrase}
@@ -268,17 +345,35 @@ function Speak() {
                   <Volume2 className="h-5 w-5" />
                 </button>
                 <div className="min-w-0 flex-1">
-                  <p className="font-display text-lg sm:text-2xl font-extrabold leading-snug text-foreground">
+                  {/* Highlight each word: Green for correct, Red for missed */}
+                  <div className="flex flex-wrap items-center gap-1.5 font-display text-lg sm:text-2xl font-extrabold leading-snug">
+                    {res ? (
+                      res.words.map((w, idx) => (
+                        <span
+                          key={idx}
+                          className={cn(
+                            "inline-flex items-center gap-0.5 rounded-lg px-1.5 py-0.5 border text-base sm:text-xl transition-all",
+                            w.ok
+                              ? "bg-secondary/20 text-secondary-deep border-secondary/40"
+                              : "bg-accent/15 text-accent-deep border-accent/40 underline decoration-wavy decoration-accent",
+                          )}
+                        >
+                          {w.original}
+                          {w.ok ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 inline text-secondary-deep ml-0.5" />
+                          ) : (
+                            <XCircle className="h-3.5 w-3.5 inline text-accent-deep ml-0.5" />
+                          )}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-foreground">{phrase}</span>
+                    )}
+                  </div>
+                  <p className="text-[11px] sm:text-xs font-semibold text-muted-foreground mt-2">
                     {res
-                      ? res.words.map((w, i) => (
-                          <span key={i} className={w.ok ? "text-secondary-deep" : "text-accent-deep underline decoration-wavy"}>
-                            {w.word}{" "}
-                          </span>
-                        ))
-                      : phrase}
-                  </p>
-                  <p className="text-[11px] sm:text-xs font-semibold text-muted-foreground mt-1">
-                    Tap the speaker to hear pronunciation
+                      ? "Words in green are correct. Words in red were missed."
+                      : "Tap the speaker to hear Tara read this phrase."}
                   </p>
                 </div>
               </div>
@@ -293,7 +388,7 @@ function Speak() {
             </button>
           </div>
 
-          {/* Record button & status */}
+          {/* Record button & live status */}
           <div className="mt-5 sm:mt-6 flex flex-col items-center gap-3">
             {phase === "recording" ? (
               <button
@@ -317,92 +412,140 @@ function Speak() {
               </button>
             )}
 
-            {phase === "recording" && <Waves />}
+            {/* Live speech feedback as you talk */}
+            {phase === "recording" && (
+              <div className="w-full max-w-sm rounded-2xl bg-sun/15 border border-sun/30 p-2.5 text-center">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-sun-deep">Listening now…</p>
+                <p className="font-display text-sm font-bold text-foreground mt-0.5 italic">
+                  {liveTranscript ? `"${liveTranscript}"` : "Speak the words into your mic…"}
+                </p>
+              </div>
+            )}
 
             <p className="text-center font-display text-xs sm:text-sm font-bold text-muted-foreground">
               {phase === "idle" && "Tap the microphone and read out loud!"}
-              {phase === "permission" && "Please allow microphone access in your browser."}
-              {phase === "recording" && "Recording… tap square when finished!"}
-              {phase === "processing" && "Listening back…"}
+              {phase === "permission" && "Opening microphone…"}
+              {phase === "recording" && "Reading now — tap the square when finished!"}
+              {phase === "processing" && "Analyzing your pronunciation…"}
             </p>
 
             {(phase === "denied" || phase === "error") && (
               <div className="flex items-center gap-3 rounded-2xl bg-peach p-3.5 font-semibold border-2 border-border text-xs sm:text-sm">
                 <MicOff className="h-5 w-5 text-accent-deep shrink-0" />
                 {phase === "denied"
-                  ? "Microphone blocked. Please allow mic access in your browser settings."
-                  : "Audio recording is not supported on this browser."}
+                  ? "Microphone access blocked. Please allow mic in browser settings to speak!"
+                  : "Speech recognition isn't supported on this browser. Try Chrome."}
               </div>
             )}
           </div>
 
-          {/* Result Feedback Panel */}
+          {/* Detailed Diagnosis Result Panel */}
           {phase === "result" && (
-            <div className="mt-5 rounded-2xl border-2 border-secondary bg-secondary/10 p-4 sm:p-5 animate-pop space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-display text-lg sm:text-xl font-extrabold text-foreground flex items-center gap-1.5">
-                    {res ? (
-                      res.score >= 80 ? "🌟 Wonderfully Clear!" : res.score >= 50 ? "👏 Great Try!" : "🐢 Keep Practicing!"
-                    ) : (
-                      "🌟 Awesome Reading!"
-                    )}
-                  </h3>
-                  <p className="text-xs sm:text-sm font-semibold text-muted-foreground mt-0.5">
-                    {res
-                      ? `${res.score}% match detected`
-                      : `Recording saved for ${s.name}! Listen back below.`}
+            <div className="mt-5 rounded-2xl border-2 border-border bg-card p-4 sm:p-5 animate-pop space-y-3.5 shadow-sm">
+              {noWordsHeard ? (
+                /* No speech was picked up */
+                <div className="rounded-xl bg-peach/40 border border-peach p-3.5 text-center space-y-2">
+                  <div className="flex items-center justify-center gap-1.5 text-accent-deep font-display font-extrabold text-base sm:text-lg">
+                    <AlertCircle className="h-5 w-5" /> We didn&apos;t hear any words!
+                  </div>
+                  <p className="text-xs sm:text-sm font-semibold text-muted-foreground">
+                    Make sure to speak clearly near your device&apos;s microphone.
                   </p>
-                </div>
-                <div className="flex text-sun-deep">
-                  <Star className="h-5 w-5 fill-sun" />
-                  <Star className="h-5 w-5 fill-sun" />
-                  <Star className="h-5 w-5 fill-sun" />
-                </div>
-              </div>
-
-              {/* Symmetrical 2x2 Action Buttons on Mobile */}
-              <div className="grid grid-cols-2 gap-2.5 pt-1">
-                {audioUrl && (
-                  <ChunkyButton tone="ghost" size="sm" onClick={() => new Audio(audioUrl).play()} className="w-full">
-                    <Play className="h-4 w-4 mr-1.5" /> My voice
+                  <ChunkyButton tone="primary" size="sm" onClick={start} className="mt-2">
+                    <RotateCcw className="h-4 w-4 mr-1.5" /> Try speaking again
                   </ChunkyButton>
-                )}
-                <ChunkyButton tone="ghost" size="sm" onClick={() => say(phrase, 0.8)} className="w-full">
-                  <Volume2 className="h-4 w-4 mr-1.5" /> Tara's voice
-                </ChunkyButton>
-                <ChunkyButton tone="ghost" size="sm" onClick={start} className="w-full">
-                  <RotateCcw className="h-4 w-4 mr-1.5" /> Try again
-                </ChunkyButton>
-                <ChunkyButton tone="secondary" size="sm" onClick={nextPhrase} className="w-full">
-                  Next phrase →
-                </ChunkyButton>
-              </div>
+                </div>
+              ) : res ? (
+                /* Speech was analyzed */
+                <>
+                  {/* Status header with score and stars */}
+                  <div className="flex items-center justify-between pb-2 border-b border-border">
+                    <div>
+                      <h3 className="font-display text-lg sm:text-xl font-extrabold text-foreground flex items-center gap-1.5">
+                        {res.score >= 80 ? (
+                          <span className="text-secondary-deep">🌟 Excellent reading!</span>
+                        ) : res.score >= 50 ? (
+                          <span className="text-sun-deep">👏 Good attempt!</span>
+                        ) : (
+                          <span className="text-accent-deep">🐢 Keep practicing!</span>
+                        )}
+                      </h3>
+                      <p className="text-xs sm:text-sm font-bold text-muted-foreground mt-0.5">
+                        Accuracy score: <span className="font-extrabold text-foreground">{res.score}%</span> (
+                        {res.correctWords.length} of {res.words.length} words correct)
+                      </p>
+                    </div>
+
+                    {/* Star rating */}
+                    <div className="flex text-sun-deep gap-0.5">
+                      <Star className={cn("h-5 w-5", res.score >= 40 ? "fill-sun" : "text-muted opacity-40")} />
+                      <Star className={cn("h-5 w-5", res.score >= 70 ? "fill-sun" : "text-muted opacity-40")} />
+                      <Star className={cn("h-5 w-5", res.score >= 90 ? "fill-sun" : "text-muted opacity-40")} />
+                    </div>
+                  </div>
+
+                  {/* "What you said" vs "What was expected" */}
+                  <div className="rounded-xl bg-ivory p-3 border border-border space-y-2 text-xs sm:text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="font-bold text-muted-foreground shrink-0 w-20">You said:</span>
+                      <span className="font-display font-bold text-foreground italic">
+                        &ldquo;{res.heardText}&rdquo;
+                      </span>
+                    </div>
+
+                    {/* Specifically tell where they went wrong */}
+                    {res.missedWords.length > 0 ? (
+                      <div className="flex items-start gap-2 pt-1 border-t border-border/60">
+                        <span className="font-bold text-accent-deep shrink-0 w-20">Tricky words:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {res.missedWords.map((word, i) => (
+                            <button
+                              key={i}
+                              onClick={() => say(word, 0.75)}
+                              className="inline-flex items-center gap-1 rounded-md bg-accent/15 px-2 py-0.5 font-bold text-accent-deep hover:bg-accent/25 transition-colors"
+                              title="Tap to hear pronunciation"
+                            >
+                              <Volume2 className="h-3 w-3" />
+                              {word}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-secondary-deep font-bold pt-1 border-t border-border/60">
+                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        <span>You read all the words correctly! Fantastic!</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-1">
+                    <ChunkyButton tone="ghost" size="md" onClick={() => say(phrase, 0.8)} className="w-full">
+                      <Volume2 className="h-4 w-4 mr-1.5" /> Hear Tara
+                    </ChunkyButton>
+                    <ChunkyButton tone="ghost" size="md" onClick={start} className="w-full">
+                      <RotateCcw className="h-4 w-4 mr-1.5" /> Try again
+                    </ChunkyButton>
+                    <ChunkyButton
+                      tone={res.score >= 60 ? "primary" : "ghost"}
+                      size="md"
+                      onClick={nextPhrase}
+                      className="col-span-2 w-full mt-1"
+                    >
+                      {res.score >= 60 ? "Next phrase →" : "Continue to next phrase →"}
+                    </ChunkyButton>
+                  </div>
+                </>
+              ) : null}
             </div>
           )}
 
           <p className="mt-4 text-center text-[11px] font-semibold text-muted-foreground/80">
-            Recordings stay on this device and disappear when you leave the page.
+            Microphone speech evaluation is processed directly on your device.
           </p>
         </section>
       </div>
-    </div>
-  );
-}
-
-function Waves() {
-  return (
-    <div className="flex h-8 items-center gap-1" aria-hidden>
-      {Array.from({ length: 14 }).map((_, i) => (
-        <span
-          key={i}
-          className="w-1.5 rounded-full bg-accent"
-          style={{
-            height: `${30 + ((i * 47) % 70)}%`,
-            animation: `bob ${0.6 + (i % 4) * 0.15}s ease-in-out infinite`,
-          }}
-        />
-      ))}
     </div>
   );
 }
