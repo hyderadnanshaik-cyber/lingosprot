@@ -25,6 +25,12 @@ import { useState } from "react";
 import { LogOut, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/app/parent")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const t = search.tab;
+    return {
+      tab: t === "profile" || t === "settings" || t === "overview" ? (t as "overview" | "profile" | "settings") : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Parent dashboard — LingoSprout" },
@@ -45,12 +51,23 @@ const ALL_AVATARS: { id: CharacterId; name: string }[] = [
 
 function ParentDashboard() {
   const s = useLearner();
-  const [tab, setTab] = useState<"overview" | "profile" | "settings">("overview");
+  const { user } = useAuth();
+  const search = Route.useSearch();
+  const [tab, setTab] = useState<"overview" | "profile" | "settings">(search.tab || "overview");
   const [nameInput, setNameInput] = useState(s.name);
   const [dobInput, setDobInput] = useState(s.dob || "2018-06-15");
   const [gradeInput, setGradeInput] = useState(s.grade || "Grade 2");
   const [selectedAvatar, setSelectedAvatar] = useState<CharacterId>(s.avatarId || "milo");
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Sync tab if search param changes
+  useEffect(() => {
+    if (search.tab) {
+      setTab(search.tab);
+    }
+  }, [search.tab]);
+
+  const activeMascot = CHARACTERS[s.avatarId as CharacterId] || CHARACTERS.milo;
 
   const completedLessons = ALL_LESSONS.filter((l) => s.completed.includes(l.id));
   const totalLessons = ALL_LESSONS.length;
@@ -157,7 +174,7 @@ function ParentDashboard() {
                   Active Learning Mascot
                 </p>
                 <p className="font-display text-xl font-bold text-foreground">
-                  {CHARACTERS[s.avatarId || "milo"].name}
+                  {activeMascot.name}
                 </p>
                 <p className="text-xs font-semibold text-muted-foreground">
                   Guiding {s.name} through phonics and speech

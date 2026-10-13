@@ -89,7 +89,12 @@ function AppShell() {
           </span>
         </Link>
         <div className="flex items-center gap-2 shrink-0">
-          <Link to="/app/parent" aria-label="Parent dashboard" className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            to="/app/parent"
+            search={{ tab: "settings" }}
+            aria-label="Parent settings"
+            className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+          >
             <Settings className="h-5 w-5" />
           </Link>
           <span className="flex items-center gap-1.5 font-display text-sm font-bold text-accent-deep bg-accent/15 px-3 py-1.5 rounded-full">
@@ -107,6 +112,15 @@ function AppShell() {
       <header className="sticky top-0 z-20 hidden md:flex items-center justify-between border-b-2 border-border bg-background/95 px-6 py-3 backdrop-blur-md">
         <div />
         <div className="flex items-center gap-3 shrink-0">
+          <Link
+            to="/app/parent"
+            search={{ tab: "settings" }}
+            aria-label="Parent settings"
+            className="flex items-center gap-1.5 p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors font-display text-sm font-bold"
+          >
+            <Settings className="h-5 w-5" />
+            Settings
+          </Link>
           <span className="flex items-center gap-1.5 font-display text-sm font-bold text-accent-deep bg-accent/15 px-3 py-1.5 rounded-full">
             <Flame className="h-4 w-4 fill-accent" />
             {s.streak} day streak

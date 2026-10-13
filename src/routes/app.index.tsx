@@ -317,6 +317,7 @@ function Dashboard() {
           </p>
           <Link
             to="/app/parent"
+            search={{ tab: "profile" }}
             className="text-sm font-bold text-accent-deep hover:underline"
           >
             Avatar →
