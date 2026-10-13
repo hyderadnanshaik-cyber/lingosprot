@@ -25,12 +25,6 @@ import { useState } from "react";
 import { LogOut, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/app/parent")({
-  validateSearch: (search: Record<string, unknown>) => {
-    const t = search.tab;
-    return {
-      tab: t === "profile" || t === "settings" || t === "overview" ? (t as "overview" | "profile" | "settings") : undefined,
-    };
-  },
   head: () => ({
     meta: [
       { title: "Parent dashboard — LingoSprout" },
@@ -52,28 +46,46 @@ const ALL_AVATARS: { id: CharacterId; name: string }[] = [
 function ParentDashboard() {
   const s = useLearner();
   const { user } = useAuth();
-  const search = Route.useSearch();
-  const [tab, setTab] = useState<"overview" | "profile" | "settings">(search.tab || "overview");
-  const [nameInput, setNameInput] = useState(s.name);
-  const [dobInput, setDobInput] = useState(s.dob || "2018-06-15");
-  const [gradeInput, setGradeInput] = useState(s.grade || "Grade 2");
-  const [selectedAvatar, setSelectedAvatar] = useState<CharacterId>(s.avatarId || "milo");
+  
+  // Safely read initial tab from URL hash or query parameter
+  const [tab, setTab] = useState<"overview" | "profile" | "settings">(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash.replace("#", "");
+      if (hash === "settings" || hash === "profile" || hash === "overview") return hash;
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get("tab");
+      if (q === "settings" || q === "profile" || q === "overview") return q;
+    }
+    return "overview";
+  });
+
+  const [nameInput, setNameInput] = useState(s?.name || "Sprout Adventurer");
+  const [dobInput, setDobInput] = useState(s?.dob || "2018-06-15");
+  const [gradeInput, setGradeInput] = useState(s?.grade || "Grade 2");
+  const [selectedAvatar, setSelectedAvatar] = useState<CharacterId>(s?.avatarId || "milo");
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Sync tab if search param changes
+  // Sync tab if user clicks hash or back/forward
   useEffect(() => {
-    if (search.tab) {
-      setTab(search.tab);
-    }
-  }, [search.tab]);
+    const checkHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (hash === "settings" || hash === "profile" || hash === "overview") {
+        setTab(hash);
+      }
+    };
+    window.addEventListener("hashchange", checkHash);
+    return () => window.removeEventListener("hashchange", checkHash);
+  }, []);
 
-  const activeMascot = CHARACTERS[s.avatarId as CharacterId] || CHARACTERS.milo;
+  const activeMascot = (s?.avatarId && CHARACTERS[s.avatarId as CharacterId]) ? CHARACTERS[s.avatarId as CharacterId] : CHARACTERS.milo;
 
-  const completedLessons = ALL_LESSONS.filter((l) => s.completed.includes(l.id));
+  const completedList = s?.completed || [];
+  const completedLessons = ALL_LESSONS.filter((l) => completedList.includes(l.id));
   const totalLessons = ALL_LESSONS.length;
-  const pct = Math.round((s.completed.length / totalLessons) * 100);
-  const currentLevel = levelOf(s.xp);
-  const unlockedAchievements = ACHIEVEMENTS.filter((a) => s.achievements.includes(a.id));
+  const pct = totalLessons > 0 ? Math.round((completedLessons.length / totalLessons) * 100) : 0;
+  const currentLevel = levelOf(s?.xp || 0);
+  const achievementsList = s?.achievements || [];
+  const unlockedAchievements = ACHIEVEMENTS.filter((a) => achievementsList.includes(a.id));
 
   // Skills breakdown from completed lessons
   const skillCounts: Record<string, number> = {};
@@ -84,7 +96,7 @@ function ParentDashboard() {
   // Level progress
   const levelProgress = LEVELS.map((lv) => ({
     ...lv,
-    done: lv.lessons.filter((l) => s.completed.includes(l.id)).length,
+    done: lv.lessons.filter((l) => completedList.includes(l.id)).length,
     total: lv.lessons.length,
   }));
 

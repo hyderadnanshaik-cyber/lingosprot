@@ -91,7 +91,7 @@ function AppShell() {
         <div className="flex items-center gap-2 shrink-0">
           <Link
             to="/app/parent"
-            search={{ tab: "settings" }}
+            hash="settings"
             aria-label="Parent settings"
             className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
           >
@@ -114,7 +114,7 @@ function AppShell() {
         <div className="flex items-center gap-3 shrink-0">
           <Link
             to="/app/parent"
-            search={{ tab: "settings" }}
+            hash="settings"
             aria-label="Parent settings"
             className="flex items-center gap-1.5 p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground transition-colors font-display text-sm font-bold"
           >
