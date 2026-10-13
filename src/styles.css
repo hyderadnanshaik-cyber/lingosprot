@@ -1,0 +1,110 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@theme inline {
+  --font-display: "Baloo 2", ui-rounded, system-ui, sans-serif;
+  --font-sans: "Nunito", ui-rounded, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 14px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-deep: var(--primary-deep);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-deep: var(--secondary-deep);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-sun: var(--sun);
+  --color-sun-deep: var(--sun-deep);
+  --color-mint: var(--mint);
+  --color-sky: var(--sky);
+  --color-peach: var(--peach);
+  --color-lavender: var(--lavender);
+  --color-ivory: var(--ivory);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --radius: 1rem;
+  --background: oklch(0.985 0.012 85);
+  --ivory: oklch(0.97 0.022 85);
+  --foreground: oklch(0.27 0.015 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.27 0.015 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.27 0.015 60);
+  --primary: oklch(0.68 0.13 190);
+  --primary-deep: oklch(0.52 0.11 192);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.76 0.17 140);
+  --secondary-deep: oklch(0.6 0.15 142);
+  --secondary-foreground: oklch(0.22 0.04 145);
+  --accent: oklch(0.71 0.16 30);
+  --accent-deep: oklch(0.58 0.16 30);
+  --accent-foreground: oklch(1 0 0);
+  --sun: oklch(0.88 0.16 90);
+  --sun-deep: oklch(0.74 0.15 75);
+  --mint: oklch(0.93 0.06 170);
+  --sky: oklch(0.9 0.06 230);
+  --peach: oklch(0.92 0.05 50);
+  --lavender: oklch(0.91 0.045 295);
+  --muted: oklch(0.95 0.012 80);
+  --muted-foreground: oklch(0.5 0.02 60);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9 0.015 75);
+  --input: oklch(0.88 0.015 75);
+  --ring: oklch(0.68 0.13 190);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; }
+}
+
+/* Chunky "pressable" 3D buttons */
+@utility btn-press {
+  border-bottom-width: 5px;
+  transition: transform 120ms, border-bottom-width 120ms, filter 120ms;
+  &:hover { filter: brightness(1.04); }
+  &:active { transform: translateY(3px); border-bottom-width: 2px; }
+}
+
+@utility paper {
+  background-image: radial-gradient(color-mix(in oklab, var(--foreground) 6%, transparent) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+@keyframes pop-in { 0% { transform: scale(.6); opacity: 0 } 70% { transform: scale(1.08) } 100% { transform: scale(1); opacity: 1 } }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+@keyframes shake { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-6px) } 75% { transform: translateX(6px) } }
+@keyframes confetti { 0% { transform: translateY(-20px) rotate(0); opacity: 1 } 100% { transform: translateY(110vh) rotate(720deg); opacity: .8 } }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 50%, transparent) } 100% { box-shadow: 0 0 0 24px transparent } }
+
+@utility animate-pop { animation: pop-in 420ms cubic-bezier(.3,1.5,.6,1) both; }
+@utility animate-bob { animation: bob 3.2s ease-in-out infinite; }
+@utility animate-shake { animation: shake 300ms ease-in-out 2; }
+@utility animate-pulse-ring { animation: pulse-ring 1.2s ease-out infinite; }
