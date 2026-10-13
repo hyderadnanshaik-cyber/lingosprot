@@ -94,6 +94,7 @@ function isWordMatch(target: string, heard: string): boolean {
 }
 
 export type WordResult = {
+  word: string;
   original: string;
   cleaned: string;
   ok: boolean;
@@ -133,9 +134,9 @@ export function compareSpeech(target: string, heard: string): SpeechComparison {
 
     if (matchedIndex !== -1) {
       usedHeardIndices.add(matchedIndex);
-      return { original, cleaned, ok: true };
+      return { word: original, original, cleaned, ok: true };
     }
-    return { original, cleaned, ok: false };
+    return { word: original, original, cleaned, ok: false };
   });
 
   const correctWords = words.filter((w) => w.ok).map((w) => w.original);

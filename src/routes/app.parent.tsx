@@ -21,7 +21,7 @@ import { useAuth, signInWithGoogle, signOutUser } from "@/lib/auth";
 import { Character, CHARACTERS, miloLogo } from "@/components/characters";
 import { ChunkyButton } from "@/components/ui-kit";
 import { ALL_LESSONS, LEVELS, type CharacterId } from "@/data/curriculum";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LogOut, Lock } from "lucide-react";
 
 export const Route = createFileRoute("/app/parent")({
